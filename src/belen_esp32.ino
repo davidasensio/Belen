@@ -7,6 +7,18 @@
 #define LED 27 // 25 or 26 or 27
 #define PIEZO 26
 
+// RGB LED pins
+#define RGB_RED 25
+#define RGB_GREEN 32
+#define RGB_BLUE 33
+
+// PWM channels for RGB (ESP32 has 16 channels: 0-15)
+#define PWM_CHANNEL_RED 0
+#define PWM_CHANNEL_GREEN 1
+#define PWM_CHANNEL_BLUE 2
+#define PWM_FREQ 5000
+#define PWM_RESOLUTION 8  // 8-bit resolution (0-255)
+
 #define NUM_SONGS 4
 
 // Song data structure
@@ -34,6 +46,23 @@ int currentNoteIndex = 0;
 unsigned long noteStartTime = 0;
 bool melodyPlaying = false;
 bool melodyPaused = false;
+bool noteGapActive = false;
+unsigned long noteGapStartTime = 0;
+const int NOTE_GAP = 30;  // Gap between notes in ms
+
+// Status LED variables (non-blocking)
+unsigned long lastLedToggle = 0;
+const int LED_INTERVAL = 500;
+bool ledState = false;
+
+// Ambient light variables
+unsigned long lastLightUpdate = 0;
+const int LIGHT_UPDATE_INTERVAL = 10;  // Update every 10ms for smooth transitions
+int brightnessValue = 0;
+int fadeDirection = 1;  // 1 = fading up, -1 = fading down
+
+// Warm yellow color ratio (R=255, G=100 gives a nice warm amber)
+const float GREEN_RATIO = 0.4;  // Green at 40% of red for warm yellow
 
 void selectRandomSong() {
   int songIndex = random(NUM_SONGS);
@@ -63,6 +92,73 @@ void toggleMelody() {
   }
 }
 
+// RGB LED functions
+void setRGB(int r, int g, int b) {
+  ledcWrite(PWM_CHANNEL_RED, r);
+  ledcWrite(PWM_CHANNEL_GREEN, g);
+  ledcWrite(PWM_CHANNEL_BLUE, b);
+}
+
+void setupRGB() {
+  // Configure PWM channels
+  ledcSetup(PWM_CHANNEL_RED, PWM_FREQ, PWM_RESOLUTION);
+  ledcSetup(PWM_CHANNEL_GREEN, PWM_FREQ, PWM_RESOLUTION);
+  ledcSetup(PWM_CHANNEL_BLUE, PWM_FREQ, PWM_RESOLUTION);
+
+  // Attach channels to pins
+  ledcAttachPin(RGB_RED, PWM_CHANNEL_RED);
+  ledcAttachPin(RGB_GREEN, PWM_CHANNEL_GREEN);
+  ledcAttachPin(RGB_BLUE, PWM_CHANNEL_BLUE);
+
+  // Start with lights off
+  setRGB(0, 0, 0);
+}
+
+void startupTest() {
+  // Blink blue 4 times
+  for (int i = 0; i < 4; i++) {
+    setRGB(0, 0, 255);
+    delay(100);
+    setRGB(0, 0, 0);
+    delay(100);
+  }
+
+  // Blink red 4 times
+  for (int i = 0; i < 4; i++) {
+    setRGB(255, 0, 0);
+    delay(100);
+    setRGB(0, 0, 0);
+    delay(100);
+  }
+
+  // Fixed green for 500ms
+  setRGB(0, 255, 0);
+  delay(500);
+  setRGB(0, 0, 0);
+}
+
+void updateAmbientLight() {
+  unsigned long currentTime = millis();
+  if (currentTime - lastLightUpdate < LIGHT_UPDATE_INTERVAL) {
+    return;
+  }
+  lastLightUpdate = currentTime;
+
+  // Warm yellow fade: 0 -> 255 -> 0
+  brightnessValue += fadeDirection;
+  if (brightnessValue >= 255) {
+    brightnessValue = 255;
+    fadeDirection = -1;
+  } else if (brightnessValue <= 0) {
+    brightnessValue = 0;
+    fadeDirection = 1;
+  }
+
+  int redValue = brightnessValue;
+  int greenValue = (int)(brightnessValue * GREEN_RATIO);
+  setRGB(redValue, greenValue, 0);
+}
+
 void setup() {
   pinMode(LED, OUTPUT);
   Serial.begin(9600);
@@ -70,23 +166,46 @@ void setup() {
   // Seed random with analog noise
   randomSeed(analogRead(0));
 
+  // Initialize RGB LED
+  setupRGB();
+
+  // Run startup test
+  startupTest();
+
   // Select a random song at boot
   selectRandomSong();
 }
 
+void updateStatusLed() {
+  unsigned long currentTime = millis();
+  if (currentTime - lastLedToggle >= LED_INTERVAL) {
+    lastLedToggle = currentTime;
+    ledState = !ledState;
+    digitalWrite(LED, ledState ? HIGH : LOW);
+  }
+}
+
 void loop() {
   updateMelody();
-
-  digitalWrite(LED, LOW);
-  delay(500);
-  digitalWrite(LED, HIGH);
-  Serial.println("Hola");
-  delay(500);
+  updateAmbientLight();
+  updateStatusLed();
 }
 
 void updateMelody() {
   // Skip if paused
   if (melodyPaused) {
+    return;
+  }
+
+  unsigned long currentTime = millis();
+
+  // Handle gap between notes (non-blocking)
+  if (noteGapActive) {
+    if (currentTime - noteGapStartTime >= NOTE_GAP) {
+      noteGapActive = false;
+      noteStartTime = currentTime;
+      tone(PIEZO, melodyNotes[currentNoteIndex]);
+    }
     return;
   }
 
@@ -99,21 +218,20 @@ void updateMelody() {
   // Start melody if not playing
   if (!melodyPlaying) {
     melodyPlaying = true;
-    noteStartTime = millis();
+    noteStartTime = currentTime;
     tone(PIEZO, melodyNotes[currentNoteIndex]);
     return;
   }
 
   // Check if current note duration has elapsed
-  if (millis() - noteStartTime >= melodyDurations[currentNoteIndex]) {
+  if (currentTime - noteStartTime >= melodyDurations[currentNoteIndex]) {
     noTone(PIEZO);
     currentNoteIndex++;
 
-    // Start next note if available
+    // Start gap before next note if available
     if (currentNoteIndex < melodyLength) {
-      delay(30);  // Small gap between notes (shorter for smoother melody)
-      noteStartTime = millis();
-      tone(PIEZO, melodyNotes[currentNoteIndex]);
+      noteGapActive = true;
+      noteGapStartTime = currentTime;
     } else {
       melodyPlaying = false;
     }
