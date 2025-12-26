@@ -4,6 +4,11 @@
 #include "songs/joy_to_the_world.h"
 #include "songs/jingle_bells.h"
 #include "songs/adeste_fideles.h"
+#include "web_server.h"
+
+// WiFi credentials - change these to your network
+const char* ssid = "DIGIFIBRA-R69C";
+const char* password = "Y93ekxDz9X";
 
 #define LED 27 // 25 or 26 or 27
 #define PIEZO 26
@@ -15,9 +20,10 @@
 #define RGB_BLUE 33
 
 // PWM channels for RGB (ESP32 has 16 channels: 0-15)
-#define PWM_CHANNEL_RED 0
-#define PWM_CHANNEL_GREEN 1
-#define PWM_CHANNEL_BLUE 2
+// Using channels 5-7 to avoid conflict with tone() which uses lower channels
+#define PWM_CHANNEL_RED 5
+#define PWM_CHANNEL_GREEN 6
+#define PWM_CHANNEL_BLUE 7
 #define PWM_FREQ 5000
 #define PWM_RESOLUTION 8  // 8-bit resolution (0-255)
 
@@ -165,7 +171,9 @@ void startupTest() {
 }
 
 void updateAmbientLight() {
-  if (!ambientEnabled) return;
+  if (!ambientEnabled) {
+    return;
+  }
 
   unsigned long currentTime = millis();
   if (currentTime - lastLightUpdate < LIGHT_UPDATE_INTERVAL) {
@@ -190,7 +198,7 @@ void updateAmbientLight() {
 
 void setup() {
   pinMode(LED, OUTPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // Seed random with analog noise
   randomSeed(analogRead(0));
@@ -204,6 +212,10 @@ void setup() {
   // Initialize servo
   myServo.attach(SERVO_PIN);
   myServo.write(90);
+
+  // Connect to WiFi and start web server
+  setupWiFi();
+  setupWebServer();
 
   // Select a random song at boot
   selectRandomSong();
@@ -219,6 +231,7 @@ void updateStatusLed() {
 }
 
 void loop() {
+  server.handleClient();
   updateMelody();
   updateAmbientLight();
   updateServo();
