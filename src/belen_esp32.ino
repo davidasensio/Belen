@@ -33,6 +33,7 @@ int melodyLength;
 int currentNoteIndex = 0;
 unsigned long noteStartTime = 0;
 bool melodyPlaying = false;
+bool melodyPaused = false;
 
 void selectRandomSong() {
   int songIndex = random(NUM_SONGS);
@@ -41,6 +42,25 @@ void selectRandomSong() {
   melodyLength = songs[songIndex].length;
   Serial.print("Playing: ");
   Serial.println(songs[songIndex].name);
+}
+
+void pauseMelody() {
+  melodyPaused = true;
+  noTone(PIEZO);
+  Serial.println("Melody paused");
+}
+
+void resumeMelody() {
+  melodyPaused = false;
+  Serial.println("Melody resumed");
+}
+
+void toggleMelody() {
+  if (melodyPaused) {
+    resumeMelody();
+  } else {
+    pauseMelody();
+  }
 }
 
 void setup() {
@@ -65,6 +85,11 @@ void loop() {
 }
 
 void updateMelody() {
+  // Skip if paused
+  if (melodyPaused) {
+    return;
+  }
+
   // If melody finished, restart it
   if (currentNoteIndex >= melodyLength) {
     currentNoteIndex = 0;
