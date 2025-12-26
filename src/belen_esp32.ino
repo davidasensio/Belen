@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ESP32Servo.h>
 #include "songs/silent_night.h"
 #include "songs/joy_to_the_world.h"
 #include "songs/jingle_bells.h"
@@ -6,6 +7,7 @@
 
 #define LED 27 // 25 or 26 or 27
 #define PIEZO 26
+#define SERVO_PIN 13
 
 // RGB LED pins
 #define RGB_RED 25
@@ -64,6 +66,15 @@ int fadeDirection = 1;  // 1 = fading up, -1 = fading down
 // Warm yellow color ratio (R=255, G=100 gives a nice warm amber)
 const float GREEN_RATIO = 0.4;  // Green at 40% of red for warm yellow
 
+// Servo
+Servo myServo;
+bool servoEnabled = false;
+int servoPosition = 90;
+
+// Control states
+bool ledEnabled = true;
+bool ambientEnabled = true;
+
 void selectRandomSong() {
   int songIndex = random(NUM_SONGS);
   melodyNotes = songs[songIndex].notes;
@@ -114,6 +125,22 @@ void setupRGB() {
   setRGB(0, 0, 0);
 }
 
+
+void updateServo() {
+  if (!servoEnabled) return;
+
+  static unsigned long lastServoUpdate = 0;
+  static int servoDirection = 1;
+
+  if (millis() - lastServoUpdate > 20) {
+    lastServoUpdate = millis();
+    servoPosition += servoDirection;
+    if (servoPosition >= 120) servoDirection = -1;
+    if (servoPosition <= 60) servoDirection = 1;
+    myServo.write(servoPosition);
+  }
+}
+
 void startupTest() {
   // Blink blue 4 times
   for (int i = 0; i < 4; i++) {
@@ -138,6 +165,8 @@ void startupTest() {
 }
 
 void updateAmbientLight() {
+  if (!ambientEnabled) return;
+
   unsigned long currentTime = millis();
   if (currentTime - lastLightUpdate < LIGHT_UPDATE_INTERVAL) {
     return;
@@ -172,6 +201,10 @@ void setup() {
   // Run startup test
   startupTest();
 
+  // Initialize servo
+  myServo.attach(SERVO_PIN);
+  myServo.write(90);
+
   // Select a random song at boot
   selectRandomSong();
 }
@@ -188,7 +221,8 @@ void updateStatusLed() {
 void loop() {
   updateMelody();
   updateAmbientLight();
-  updateStatusLed();
+  updateServo();
+  if (ledEnabled) updateStatusLed();
 }
 
 void updateMelody() {
