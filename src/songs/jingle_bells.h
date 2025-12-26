@@ -4,7 +4,7 @@
 #include "notes.h"
 
 // "Jingle Bells" melody (chorus)
-int melodyNotes[] = {
+const int jingleBellsNotes[] = {
   // "Jingle bells, jingle bells"
   NOTE_E4, NOTE_E4, NOTE_E4,
   NOTE_E4, NOTE_E4, NOTE_E4,
@@ -18,7 +18,7 @@ int melodyNotes[] = {
   NOTE_E4, NOTE_D4, NOTE_D4, NOTE_E4, NOTE_D4, NOTE_G4
 };
 
-int melodyDurations[] = {
+const int jingleBellsDurations[] = {
   // "Jingle bells, jingle bells"
   QUARTER, QUARTER, HALF,
   QUARTER, QUARTER, HALF,
@@ -32,6 +32,6 @@ int melodyDurations[] = {
   QUARTER, QUARTER, QUARTER, QUARTER, HALF, HALF
 };
 
-#define MELODY_LENGTH 26
+#define JINGLE_BELLS_LENGTH 26
 
 #endif

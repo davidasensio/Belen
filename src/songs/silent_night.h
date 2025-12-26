@@ -4,7 +4,7 @@
 #include "notes.h"
 
 // Silent Night melody - first verse
-int melodyNotes[] = {
+const int silentNightNotes[] = {
   // "Si-lent night" (G A. G E)
   NOTE_G4, NOTE_A4, NOTE_G4, NOTE_E4,
   // "Ho-ly night" (G A. G E)
@@ -31,7 +31,7 @@ int melodyNotes[] = {
   NOTE_F4, NOTE_D5, NOTE_C5
 };
 
-int melodyDurations[] = {
+const int silentNightDurations[] = {
   // "Si-lent night"
   DOTTED_QUARTER, EIGHTH, QUARTER, DOTTED_HALF,
   // "Ho-ly night"
@@ -58,6 +58,6 @@ int melodyDurations[] = {
   DOTTED_QUARTER, QUARTER, WHOLE
 };
 
-#define MELODY_LENGTH 42
+#define SILENT_NIGHT_LENGTH 42
 
 #endif

@@ -4,7 +4,7 @@
 #include "notes.h"
 
 // "Adeste Fideles" (O Come, All Ye Faithful) melody
-int melodyNotes[] = {
+const int adesteFidelesNotes[] = {
   // "O come, all ye faithful" (A-des-te fi-de-les)
   NOTE_G4, NOTE_G4, NOTE_D4, NOTE_G4, NOTE_A4, NOTE_D4,
   // "Joyful and triumphant" (Lae-ti tri-um-phan-tes)
@@ -27,7 +27,7 @@ int melodyNotes[] = {
   NOTE_G4, NOTE_F4, NOTE_E4, NOTE_D4
 };
 
-int melodyDurations[] = {
+const int adesteFidelesDurations[] = {
   // "O come, all ye faithful"
   HALF, QUARTER, QUARTER, HALF, HALF, WHOLE,
   // "Joyful and triumphant"
@@ -50,6 +50,6 @@ int melodyDurations[] = {
   DOTTED_HALF, QUARTER, HALF, WHOLE
 };
 
-#define MELODY_LENGTH 47
+#define ADESTE_FIDELES_LENGTH 47
 
 #endif

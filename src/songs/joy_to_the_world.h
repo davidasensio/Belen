@@ -4,7 +4,7 @@
 #include "notes.h"
 
 // "Joy to the World" melody
-int melodyNotes[] = {
+const int joyToTheWorldNotes[] = {
   // "Joy to the world"
   NOTE_C5, NOTE_B4, NOTE_A4, NOTE_G4,
   // "the Lord is come"
@@ -29,7 +29,7 @@ int melodyNotes[] = {
   NOTE_A4, NOTE_G4, NOTE_F4, NOTE_E4, NOTE_D4, NOTE_C4
 };
 
-int melodyDurations[] = {
+const int joyToTheWorldDurations[] = {
   // "Joy to the world"
   DOTTED_HALF, QUARTER, DOTTED_QUARTER, EIGHTH,
   // "the Lord is come"
@@ -54,6 +54,6 @@ int melodyDurations[] = {
   QUARTER, EIGHTH, EIGHTH, QUARTER, QUARTER, WHOLE
 };
 
-#define MELODY_LENGTH 45
+#define JOY_TO_THE_WORLD_LENGTH 45
 
 #endif
