@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <ESP32Servo.h>
 #include "web_server.h"
+#include "sinric_pro.h"
 
 // External variables from main file
 extern const char* ssid;
@@ -85,6 +86,18 @@ const char* htmlPage = R"rawliteral(
     <button class="btn btn-off" onclick="send('/servo/off')">Stop</button>
   </div>
 
+  <div class="status">
+    <h2>Alexa / Sinric Pro / Sensor 1</h2>
+    <button class="btn btn-on" onclick="send('/alexa/on')">Turn ON</button>
+    <button class="btn btn-off" onclick="send('/alexa/off')">Turn OFF</button>
+  </div>
+
+  <div class="status">
+    <h2>Alexa / Sinric Pro / Sensor 2</h2>
+    <button class="btn btn-on" onclick="send('/alexa2/on')">Turn ON</button>
+    <button class="btn btn-off" onclick="send('/alexa2/off')">Turn OFF</button>
+  </div>
+
   <footer style="margin-top: 30px; color: gray;">Made with &#x2764;&#xFE0F; by Maria Hurtado &amp; David A.</footer>
 </body>
 </html>
@@ -147,6 +160,26 @@ void handleServoOff() {
   server.send(200, "text/plain", "OK");
 }
 
+void handleAlexaOn() {
+  sendAlexaCommand(true);
+  server.send(200, "text/plain", "OK");
+}
+
+void handleAlexaOff() {
+  sendAlexaCommand(false);
+  server.send(200, "text/plain", "OK");
+}
+
+void handleAlexa2On() {
+  sendAlexaCommand2(true);
+  server.send(200, "text/plain", "OK");
+}
+
+void handleAlexa2Off() {
+  sendAlexaCommand2(false);
+  server.send(200, "text/plain", "OK");
+}
+
 void setupWebServer() {
   server.on("/", handleRoot);
   server.on("/led/on", handleLedOn);
@@ -158,6 +191,10 @@ void setupWebServer() {
   server.on("/ambient/off", handleAmbientOff);
   server.on("/servo/on", handleServoOn);
   server.on("/servo/off", handleServoOff);
+  server.on("/alexa/on", handleAlexaOn);
+  server.on("/alexa/off", handleAlexaOff);
+  server.on("/alexa2/on", handleAlexa2On);
+  server.on("/alexa2/off", handleAlexa2Off);
   server.begin();
   Serial.println("Web server started");
 }

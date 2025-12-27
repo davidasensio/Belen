@@ -5,6 +5,7 @@
 #include "songs/jingle_bells.h"
 #include "songs/adeste_fideles.h"
 #include "web_server.h"
+#include "sinric_pro.h"
 
 // WiFi credentials - change these to your network
 const char* ssid = "DIGIFIBRA-R69C";
@@ -219,6 +220,9 @@ void setup() {
   setupWiFi();
   setupWebServer();
 
+  // Initialize Sinric Pro for Alexa control
+  setupSinricPro();
+
   // Select a random song at boot
   selectRandomSong();
 }
@@ -234,6 +238,7 @@ void updateStatusLed() {
 
 void loop() {
   server.handleClient();
+  handleSinricPro();
   updateMelody();
   updateAmbientLight();
   updateServo();
