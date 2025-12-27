@@ -57,7 +57,8 @@ const char* htmlPage = R"rawliteral(
   </script>
 </head>
 <body>
-  <h1>Belen Control Panel &#x1F56F;&#xFE0F;&#x1F3B6;&#x1F31F;</h1>
+  <h1>Belen Control Panel</h1>
+  <h2>&#x1F56F;&#xFE0F;&#x1F3B6;&#x1F31F;</h2>
 
   <div class="status">
     <h2>Blink Led</h2>
@@ -84,7 +85,7 @@ const char* htmlPage = R"rawliteral(
     <button class="btn btn-off" onclick="send('/servo/off')">Stop</button>
   </div>
 
-  <footer style="margin-top: 30px; color: gray;">Made by Maria Hurtado &amp; David A. with &#x2764;&#xFE0F;</footer>
+  <footer style="margin-top: 30px; color: gray;">Made with &#x2764;&#xFE0F; by Maria Hurtado &amp; David A.</footer>
 </body>
 </html>
 )rawliteral";

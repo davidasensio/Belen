@@ -12,7 +12,7 @@ const char* password = "Y93ekxDz9X";
 
 #define LED 27 // 25 or 26 or 27
 #define PIEZO 26
-#define SERVO_PIN 13
+#define SERVO_PIN 14
 
 // RGB LED pins
 #define RGB_RED 25
@@ -74,7 +74,7 @@ const float GREEN_RATIO = 0.4;  // Green at 40% of red for warm yellow
 
 // Servo
 Servo myServo;
-bool servoEnabled = false;
+bool servoEnabled = true;
 int servoPosition = 90;
 
 // Control states
@@ -141,8 +141,8 @@ void updateServo() {
   if (millis() - lastServoUpdate > 20) {
     lastServoUpdate = millis();
     servoPosition += servoDirection;
-    if (servoPosition >= 120) servoDirection = -1;
-    if (servoPosition <= 60) servoDirection = 1;
+    if (servoPosition >= 160) servoDirection = -1;
+    if (servoPosition <= 20) servoDirection = 1;
     myServo.write(servoPosition);
   }
 }
@@ -209,8 +209,10 @@ void setup() {
   // Run startup test
   startupTest();
 
-  // Initialize servo
-  myServo.attach(SERVO_PIN);
+  // Initialize servo on channel 8 to avoid conflicts with tone() and RGB PWM
+  myServo.setPeriodHertz(50);
+  ESP32PWM::allocateTimer(2);  // Use timer 2 for servo
+  myServo.attach(SERVO_PIN, 500, 2400);
   myServo.write(90);
 
   // Connect to WiFi and start web server
