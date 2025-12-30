@@ -4,15 +4,22 @@
 #include "sinric_pro.h"
 
 // ============================================
-// SINRIC PRO CREDENTIALS - FILL IN YOUR VALUES
+// SINRIC PRO CREDENTIALS
 // ============================================
-// Get these from https://sinric.pro after creating an account
-// user: nayedon363@fftube.com / pass: Naye1123
-//
-#define APP_KEY    "eae7a719-a997-40bf-b850-fb685d9db789"      // App Key from Sinric Pro
-#define APP_SECRET "fde5e5ca-0254-45c1-a8eb-0f7caf0d9b57-80373734-51df-457f-ab27-d3ce2c03b30f"   // App Secret from Sinric Pro
-#define DEVICE_ID_1  "695442e441d7ad27c3729313"    // Contact Sensor 1
-#define DEVICE_ID_2  "69544513971001dc5588c7a2"    // Virtual Sensor 2
+// Check if credentials.h exists (gitignored file with real credentials)
+#if __has_include("credentials.h")
+  #include "credentials.h"
+  #define APP_KEY      SINRIC_APP_KEY
+  #define APP_SECRET   SINRIC_APP_SECRET
+  #define DEVICE_ID_1  SINRIC_DEVICE_ID_1
+  #define DEVICE_ID_2  SINRIC_DEVICE_ID_2
+#else
+  // Fallback - get these from https://sinric.pro after creating an account
+  #define APP_KEY      "YOUR_APP_KEY_HERE"
+  #define APP_SECRET   "YOUR_APP_SECRET_HERE"
+  #define DEVICE_ID_1  "YOUR_DEVICE_ID_1_HERE"
+  #define DEVICE_ID_2  "YOUR_DEVICE_ID_2_HERE"
+#endif
 
 // Track connection status
 bool sinricConnected = false;

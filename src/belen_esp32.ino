@@ -7,9 +7,16 @@
 #include "web_server.h"
 #include "sinric_pro.h"
 
-// WiFi credentials - change these to your network
-const char* ssid = "DIGIFIBRA-R69C";
-const char* password = "Y93ekxDz9X";
+// Check if credentials.h exists (gitignored file with real credentials)
+#if __has_include("credentials.h")
+  #include "credentials.h"
+  const char* ssid = WIFI_SSID;
+  const char* password = WIFI_PASSWORD;
+#else
+  // Fallback - change these to your network
+  const char* ssid = "YOUR_WIFI_SSID";
+  const char* password = "YOUR_WIFI_PASSWORD";
+#endif
 
 #define LED 27 // 25 or 26 or 27
 #define PIEZO 26
