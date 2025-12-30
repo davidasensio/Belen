@@ -200,6 +200,17 @@ void setupWebServer() {
 }
 
 void setupWiFi() {
+  // Configure static IP
+  // Without this block a random IP would be chosen (printed to the serial output)
+  IPAddress staticIP(192, 168, 1, 100);
+  IPAddress gateway(192, 168, 1, 1);
+  IPAddress subnet(255, 255, 255, 0);
+  IPAddress dns(8, 8, 8, 8);
+
+  if (!WiFi.config(staticIP, gateway, subnet, dns)) {
+    Serial.println("Static IP configuration failed, using DHCP");
+  }
+
   Serial.print("Connecting to WiFi");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
